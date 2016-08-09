@@ -116,6 +116,7 @@ cette technologie. Si celle-ci n'est pas disponible, il utilisera WebSQL (Safari
 Une fois notre base de données créée, nous pouvons commencer à insérer des documents :
 
 ```javascript
+var db = new PouchDB("smart-meter");
 // Avec la fonction post
 db.post({
   date: "2014-11-12T23:27:03.794Z",
@@ -146,6 +147,7 @@ Modifier un document est aussi simple qu'ajouter un document, il suffit d'utilis
 `db.put()` :
 
 ```javascript
+var db = new PouchDB("smart-meter");
 db.put({
   _id: "2014-11-12T23:27:03.794Z",
   kilowatt_hours: 14
@@ -168,6 +170,7 @@ db.put({
 Pour supprimer un document, il suffit d'utiliser la fonction `db.remove()` :
 
 ```javascript
+var db = new PouchDB("smart-meter");
 db.put({
   _id: "2014-11-12T23:27:03.794Z",
   kilowatt_hours: 14
@@ -191,6 +194,7 @@ Commençons par une requête simple en utilisant la fonction `db.allDocs()` qui 
 tous les documents de la base de données.
 
 ```javascript
+var db = new PouchDB("smart-meter");
 db.bulkDocs([
   {_id: "2014-11-12T23:27:03.794Z", kilowatt_hours: 14},
   {_id: "2014-11-13T00:52:01.471Z", kilowatt_hours: 15},
@@ -272,6 +276,98 @@ db.put(ddoc).catch(function (err) {
 ```
 
 ### Réplication
+Entrons maintenant dans le vif du sujet et ce qui fait toute la magie de CouchDB et de PouchDB,
+la réplication/synchronisation de base de données locale avec une base de données CouchDB distante.
+
+Plusieurs patterns de réplication existent :
+
+- **One Database Per User** : Comme son nom l'indique, chaque utilisateur possède 
+sa propre base de donnée en local et sur le serveur CouchDB.
+- **Write-Only Replication** : Les données sont générées sur le device de chaque 
+utilisateur et se répliquent vers le serveur CouchDB.
+- **Read-Only Replication** : Les données sont générées sur le serveur CouchDB et se répliquent
+vers chaque device/utilisateur distant.
+- **Bidirectional Replication** : Les données sont générées à la fois sur le device et sur
+le serveur CouchDB. Les données sont répliquées vers/depuis le serveur et vers/depuis les 
+devices des utilisateurs.
+
+Comme souvent dans les applications business on souhaite partager de l'information entre les
+utilisateurs, c'est ce dernier pattern et son utilisation que je vais vous présenter.
+
+#### Réplication bidirectionnelle
+Voici comment procéder pour initialiser la réplication entre la base de donnée locale et 
+la base de donnée distante :
+
+```javascript
+// Création de la base de donnée locale
+var db = new PouchDB("smart-meter");
+console.log("Local database created");
+// Création de l'object base de donnée distante
+var remoteDb = new PouchDB(
+  "https://my-remote-couchdb-server.business.com/smart-meter"
+);
+console.log("Remote database created");
+
+// Initialisation de la réplication
+var sync = db.sync(remoteDb, {
+    live: true,
+    retry: true
+});
+```
+
+Voilà, avec ces quelques lignes nous avons paramétré une replication bidirectionnelle entre
+notre base de donnée locale et notre base de donnée distante.
+
+En activant `options.live`, PouchDB va suivre tous les changements et les répliquer 
+automatiquement.
+
+En activant `options.retry`, PouchDB va tenter de relancer la réplication en cas d'échec
+(de perte de connexion notamment).
+
+Grâce à cette configuration chaque changement (création, modification et suppression de document)
+va être automatiquement répliquée entre la base de donnée locale et distante et inversement.
+
+> Parfois, on souhaite contrôler à la demande la fonctionnalité de synchronisation
+de données, pour cela il suffit d'appeller la fonction `db.sync()` avec `options.live: false`
+à chaque fois que l'on veut lancer une synchronisation.
+
+Une fois la réplication lancée, il est important de réagir aux différents événements que
+va lancer PouchDB (en cas d'erreur ou de conflit de synchronisation par exemple) :
+```javascript
+sync.on("change", function(info) {
+    // La réplication a créée ou modifiée un document
+    console.log("On change");
+    console.log(info);
+  }).on("complete", function(info) {
+    // La réplication a été terminée ou annulée
+    console.log("On complete");
+    console.log(info);
+  }).on("paused", function(error) {
+    // La réplication est en pause (la base de donnée est à jour ou l'utilisateur est offline)
+    console.log("On paused");
+    console.log(error);
+  }).on("active", function() {
+    // La réplication reprend (nouvelles modifications de réplication ou l'utilisateur est de retour online)
+    console.log("On active");
+    console.log("active");
+  }).on("denied", function(error) {
+    // Un document n'a pas réussi à se répliquer
+    console.log("On denied");
+    console.log(error);
+  }).on("error", function(error) {
+    // La réplication s'est arrêtée en raison d'une erreur irrécupérable
+    console.log("On error");
+    console.log(error);
+  })
+``` 
+
+#### Réplication filtrée
+Jusque là, le processus de réplication que nous avons créé, réplique et synchronise la base
+de donnée complète. Ceci n'est pas très efficace, d'autant plus qu'un utilisateur 
+n'a pas forcément besoin d'avoir accès à la totalité des données mais uniquement les données
+qui le concerne.
+
+Pour répondre à cette problématique nous allons utilisé la **réplication filtrée**
 
 ToDo
 ====
