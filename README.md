@@ -208,6 +208,8 @@ tous les documents de la base de données.
 
 ```javascript
 var db = new PouchDB("smart-meter");
+// On utilise la fonction bulkDocs() qui permet de créer/modifier 
+// plusieurs documents en même temps (batch)
 db.bulkDocs([
   {_id: "2014-11-12T23:27:03.794Z", kilowatt_hours: 14},
   {_id: "2014-11-13T00:52:01.471Z", kilowatt_hours: 15},
@@ -351,7 +353,7 @@ Une fois la réplication lancée, il est important de réagir aux différents é
 va lancer PouchDB (en cas d'erreur ou de conflit de synchronisation par exemple) :
 ```javascript
 sync.on("change", function(info) {
-    // La réplication a créée ou modifiée un document
+    // La réplication a créé ou modifié un document
     console.log("On change");
     console.log(info);
   }).on("complete", function(info) {
@@ -383,14 +385,14 @@ de données complète. Ceci n'est pas très efficace, d'autant plus qu'un utilis
 n'a pas forcément besoin d'avoir accès à la totalité des données mais uniquement les données
 qui le concerne.
 
-Pour répondre à cette problématique nous allons utilisé la **réplication filtrée** :
+Pour répondre à cette problématique nous allons utiliser la **réplication filtrée** :
 
 - On sélectionne (grâce à l'utilisation d'une fonction) quels documents répliquer.
-- La fonction filtre peut être définit localement dans PouchDB, ou à distance dans CouchDB.
+- La fonction filtre peut être définie localement dans PouchDB, ou à distance dans CouchDB.
 
 ![filtered-replication](./assets/filtered-replication.png)
 
-Voici comment utiliser la réplication filtrée cotée PouchDB:
+Voici comment utiliser la réplication filtrée coté PouchDB:
 ```javascript
 var db = new PouchDB("smart-meter");
 var remoteDb = new PouchDB(
