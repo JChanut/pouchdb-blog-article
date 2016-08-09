@@ -109,7 +109,7 @@ console.log("Local database created");
 ```
 
 PouchDB va créer une base de données locale en utilisant la technologie disponible du navigateur :
-si IndexedDB est disponible (comme sur la plupart des navigateurs récent), il privilégiera 
+si IndexedDB est disponible (comme sur la plupart des navigateurs récents), il privilégiera 
 cette technologie. Si celle-ci n'est pas disponible, il utilisera WebSQL (Safari).
 
 ### Ajout de document
@@ -213,7 +213,7 @@ db.bulkDocs([
 ```
 
 De premier abord, cette fonction peut nous sembler accessoire mais il s'agit d'une fausse
-impression. Car en utilisant correctement les différentes options la plupart des requêtes
+impression. Car en utilisant correctement les différentes options, la plupart des requêtes
 peuvent être faites avec cette fonction.
 
 Voici un petit résumé des options les plus intéressantes :
@@ -291,10 +291,13 @@ vers chaque device/utilisateur distant.
 le serveur CouchDB. Les données sont répliquées vers/depuis le serveur et vers/depuis les 
 devices des utilisateurs.
 
-Comme souvent dans les applications business on souhaite partager de l'information entre les
+Comme souvent dans les applications business, on souhaite partager de l'information entre les
 utilisateurs, c'est ce dernier pattern et son utilisation que je vais vous présenter.
 
 #### Réplication bidirectionnelle
+
+![bidirectional-replication](./assets/bidirectional-replication.png)
+
 Voici comment procéder pour initialiser la réplication entre la base de données locale et 
 la base de données distante :
 
@@ -325,7 +328,7 @@ En activant `options.retry`, PouchDB va tenter de relancer la réplication en ca
 (de perte de connexion notamment).
 
 Grâce à cette configuration chaque changement (création, modification et suppression de document)
-va être automatiquement répliquée entre la base de données locale et distante et inversement.
+va être automatiquement répliqué entre la base de données locale et distante et inversement.
 
 > Parfois, on souhaite contrôler à la demande la fonctionnalité de synchronisation
 de données, pour cela il suffit d'appeller la fonction `db.sync()` avec `options.live: false`
@@ -372,6 +375,8 @@ Pour répondre à cette problématique nous allons utilisé la **réplication fi
 - On sélectionne (grâce à l'utilisation d'une fonction) quels documents répliquer.
 - La fonction filtre peut être définit localement dans PouchDB, ou à distance dans CouchDB.
 
+![filtered-replication](./assets/filtered-replication.png)
+
 Voici comment utiliser la réplication filtrée cotée PouchDB:
 ```javascript
 var db = new PouchDB("smart-meter");
@@ -403,7 +408,7 @@ var sync = db.sync(remoteDb, {
 });
 ```
 
-Vous trouverez plus d'information sur la réplication filtrée dans CouchDB [ici](https://wiki.apache.org/couchdb/Replication#Filtered_Replication).
+Vous trouverez plus d'informations sur la réplication filtrée dans CouchDB [ici](https://wiki.apache.org/couchdb/Replication#Filtered_Replication).
 
 Pour conclure
 -------------
@@ -422,7 +427,7 @@ Coté CouchDB la prochaine version (2.0) embarquera un nouveau système de requ�
 [Mango](https://blog.couchdb.org/2016/08/03/feature-mango-query/) avec une API largement
 inspiré de MongoDB.
 
-Pour ma part, je suis tombé amoureux de cette technologie et je l'utilise sur presque tout mes
+Pour ma part, je suis tombé amoureux de cette technologie et je l'utilise sur presque tous mes
 projets d'applications web mobile. 
 
 De plus, grâce à son système de réplication et d'API REST qui offre une intéropabilité maximum,
