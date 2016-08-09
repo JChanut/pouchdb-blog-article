@@ -138,7 +138,7 @@ db.put({
 ```
 
 > En utilisant la fonction `db.post()`, on laisse PouchDB générer automatiquement un identifiant
-unique (`_id`). Alors qu'avec la fonction `db.put()`, il faut explicitement inclure une 
+unique `_id`. Alors qu'avec la fonction `db.put()`, il faut explicitement inclure la 
 propriété `_id` au document.
 
 ### Modification d'un document
@@ -163,3 +163,116 @@ db.put({
     console.log(error);
 });
 ```
+
+### Suppression d'un document
+Pour supprimer un document, il suffit d'utiliser la fonction `db.remove()` :
+
+```javascript
+db.put({
+  _id: "2014-11-12T23:27:03.794Z",
+  kilowatt_hours: 14
+}).then(function(response) {
+  console.log("Document created");
+  // Get the document
+  return db.get(response.id);
+}).then(function(doc) {
+  console.log("Document read");
+  // Remove the document from the database
+  return db.remove(doc);
+}).then(function(response) {
+  console.log("Document deleted");
+}).catch(function(error) {
+    console.log(error);
+});
+```
+
+### Requêter la base de données avec `allDocs`
+Commençons par une requête simple en utilisant la fonction `db.allDocs()` qui permet récupérer
+tous les documents de la base de données.
+
+```javascript
+db.bulkDocs([
+  {_id: "2014-11-12T23:27:03.794Z", kilowatt_hours: 14},
+  {_id: "2014-11-13T00:52:01.471Z", kilowatt_hours: 15},
+  {_id: "2014-11-13T01:39:28.911Z", kilowatt_hours: 16},
+  {_id: "2014-11-13T02:52:01.471Z", kilowatt_hours: 17}
+]).then(function(result) {
+  console.log("Documents created");
+  // Get all documents
+  return db.allDocs({include_docs: true});
+}).then(function(response) {
+  console.log("Documents read");
+  console.log(response);
+}).catch(function(error) {
+  console.log(error);
+});
+```
+
+De premier abord, cette fonction peut nous sembler accessoire mais il s'agit d'une fausse
+impression. Car en utilisant correctement les différentes options la plupart des requêtes
+peuvent être faites avec cette fonction.
+
+Voici un petit résumé des options les plus intéressantes :
+
+- `options.startkey` et `options.endkey` : Requête les documents ayant un ID entre `startkey`
+et `endkey`.
+- `options.key` : Retourne les documents ayant un ID correspondant.
+- `options.keys` : Tableau de chaînes qui permet de retourner les documents ayant un ID
+correspondant.
+
+> Pour plus de détails, je vous invite à consulter la [documentation](https://pouchdb.com/api.html#batch_fetch) 
+
+### Requêter la base de données avec `query`
+Même si la fonction `allDocs()` et ses options permettent de requêter la base de
+données, très souvent lorsque l'on développe une application nous avons besoin de 
+requêtes plus complexes. Dans de tels cas, il devient nécessaire d'utiliser la fonction
+`db.query()`.
+
+ Elle permet d'invoquer une fonction map/reduce (view) qui aura été préalablement
+ écrite et stockée dans un document de design CouchDB/PouchDB (design document) :
+
+ - La fonction `map` transforme les documents en index
+ - La fonction `reduce` agrège le résultat de la fonction `map`
+
+Pour écrire des fonctions map/reduce la [documentation CouchDB](http://docs.couchdb.org/en/latest/couchapp/views/intro.html)
+s'applique à PouchDB.
+
+```javascript
+// create a design doc
+var ddoc = {
+  _id: '_design/index',
+  views: {
+    index: {
+      map: function mapFun(doc) {
+        if (doc.title) {
+          emit(doc.title);
+        }
+      }.toString()
+    }
+  }
+}
+
+// save the design doc
+db.put(ddoc).catch(function (err) {
+  if (err.name !== 'conflict') {
+    throw err;
+  }
+  // ignore if doc already exists
+}).then(function () {
+  // find docs where title === 'Lisa Says'
+  return db.query('index', {
+    key: 'Lisa Says',
+    include_docs: true
+  });
+}).then(function (result) {
+  // handle result
+}).catch(function (err) {
+  console.log(err);
+});
+```
+
+### Réplication
+
+ToDo
+====
+- Pour aller plus loin parler du plugin PouchDB find en fin de l'article
