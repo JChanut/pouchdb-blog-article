@@ -100,6 +100,19 @@ puis insérez la ligne suivante dans votre `index.html` :
 ```html
 <script src="node_modules/pouchdb/dist/pouchdb.min.js"></script>
 ```
+#### Activation de CORS
+Pour que PouchDB fonctionne avec CouchDB, il est nécessaire d'activer 
+[CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS)
+sur votre serveur CouchDB, sinon PouchDB ne sera pas capable de requêter le serveur si
+celui-ci n'est pas sur le même domaine.
+
+L'utilitaire [add-cors-to-couchdb](https://github.com/pouchdb/add-cors-to-couchdb) permet
+de configurer facilement le serveur CouchDB :
+
+```sh
+$ npm install -g add-cors-to-couchdb
+$ add-cors-to-couchdb
+```
 
 ### Création d'une base de données locale
 La première étape est la création d'une base de données locale :
