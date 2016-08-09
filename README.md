@@ -153,13 +153,13 @@ db.put({
   kilowatt_hours: 14
 }).then(function(response) {
   console.log("Document created");
-  // Get the document
+  // Récupérer le document
   return db.get(response.id);
 }).then(function(doc) {
   console.log("Document read");
-  // Update the value for kilowatt hours
+  // Modifier la valeur de kilowatt hours
   doc.kilowatt_hours = 15;
-  // Put the document back to the database
+  // Enregistrer le changement dans la database
   return db.put(doc);
 }).catch(function(error) {
     console.log(error);
@@ -176,11 +176,11 @@ db.put({
   kilowatt_hours: 14
 }).then(function(response) {
   console.log("Document created");
-  // Get the document
+  // Récupérer le document
   return db.get(response.id);
 }).then(function(doc) {
   console.log("Document read");
-  // Remove the document from the database
+  // Supprimer le document de la base de données
   return db.remove(doc);
 }).then(function(response) {
   console.log("Document deleted");
@@ -202,7 +202,7 @@ db.bulkDocs([
   {_id: "2014-11-13T02:52:01.471Z", kilowatt_hours: 17}
 ]).then(function(result) {
   console.log("Documents created");
-  // Get all documents
+  // Récupérer tous les documents
   return db.allDocs({include_docs: true});
 }).then(function(response) {
   console.log("Documents read");
@@ -242,7 +242,7 @@ Pour écrire des fonctions map/reduce la [documentation CouchDB](http://docs.cou
 s'applique à PouchDB.
 
 ```javascript
-// create a design doc
+// Création d'un design doc
 var ddoc = {
   _id: '_design/index',
   views: {
@@ -256,20 +256,20 @@ var ddoc = {
   }
 }
 
-// save the design doc
+// Sauvegarder le design doc
 db.put(ddoc).catch(function (err) {
   if (err.name !== 'conflict') {
     throw err;
   }
-  // ignore if doc already exists
+  // On ignore si le document existe déjà
 }).then(function () {
-  // find docs where title === 'Lisa Says'
+  // Trouver les documents avec title === 'Lisa Says'
   return db.query('index', {
     key: 'Lisa Says',
     include_docs: true
   });
 }).then(function (result) {
-  // handle result
+  // Traitement du résultat
 }).catch(function (err) {
   console.log(err);
 });
@@ -362,12 +362,57 @@ sync.on("change", function(info) {
 ``` 
 
 #### Réplication filtrée
-Jusque là, le processus de réplication que nous avons créé, réplique et synchronise la base
+Jusqu'ici, le processus de réplication que nous avons créé répliquait et synchronisait la base
 de donnée complète. Ceci n'est pas très efficace, d'autant plus qu'un utilisateur 
 n'a pas forcément besoin d'avoir accès à la totalité des données mais uniquement les données
 qui le concerne.
 
-Pour répondre à cette problématique nous allons utilisé la **réplication filtrée**
+Pour répondre à cette problématique nous allons utilisé la **réplication filtrée** :
+
+- On sélectionne (grâce à l'utilisation d'une fonction) quels documents répliquer.
+- La fonction filtre peut être définit localement dans PouchDB, ou à distance dans CouchDB.
+
+Voici comment utiliser la réplication filtrée cotée PouchDB:
+```javascript
+var db = new PouchDB("smart-meter");
+var remoteDb = new PouchDB(
+  "https://my-remote-couchdb-server.business.com/smart-meter"
+);
+
+// Initialisation de la réplication filtrée
+var sync = db.sync(remoteDb, {
+    live: true,
+    retry: true,
+    filter: function(doc) {
+      return doc._id >= "2014-11-13T00:00:00.000Z";
+    }
+});
+```
+
+Cet extrait de code ne va répliquer et synchroniser que les documents ayant un `_id` supérieur
+ou égal à la date du 13 novembre 2014.
+
+Vous pouvez aussi utiliser une fonction `filter` présente dans un design document de la base
+de donnée distante :
+```javascript
+// Initialisation de la réplication filtrée avec utilisation d'un filter coté CouchDB
+var sync = db.sync(remoteDb, {
+    live: true,
+    retry: true,
+    filter: 'mydesign/myfilter'
+});
+```
+
+Vous trouverez plus d'information sur la réplication filtrée dans CouchDB [ici](https://wiki.apache.org/couchdb/Replication#Filtered_Replication).
+
+Pour conclure
+-------------
+L'utilisation conjointe de PouchDB et de CouchDB simplifie grandement la gestion du mode
+déconnecté pour les applications web et mobile. La simplicité d'utilisation des APIs de PouchDB
+permet également d'être rapidement opérationnel.
+
+Pour ma part, je suis tombé amoureux de cette technologie et je l'utilise sur presque tout mes
+projets d'applications web mobile.
 
 ToDo
 ====
