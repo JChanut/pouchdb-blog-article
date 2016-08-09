@@ -411,9 +411,19 @@ L'utilisation conjointe de PouchDB et de CouchDB simplifie grandement la gestion
 déconnecté pour les applications web et mobile. La simplicité d'utilisation des APIs de PouchDB
 permet également d'être rapidement opérationnel.
 
-Pour ma part, je suis tombé amoureux de cette technologie et je l'utilise sur presque tout mes
-projets d'applications web mobile.
+Pour tempérer ce tableau, les développeurs doivent également faire un effort d'apprentissage
+car ils n'ont pas forcément l'habitude d'utiliser le concept map/reduce pour requêter une base
+de donnée.
 
-ToDo
-====
-- Pour aller plus loin parler du plugin PouchDB find en fin de l'article
+Cependant, si l'utilisation de map/reduce reste un frein à l'utilisation de CouchDB/PouchDB,
+vous pouvez utiliser le plugin [pouchdb-find](http://nolanlawson.github.io/pouchdb-find/) qui
+fournit une syntaxe simple de requêtage.
+Coté CouchDB la prochaine version (2.0) embarquera un nouveau système de requête : 
+[Mango](https://blog.couchdb.org/2016/08/03/feature-mango-query/) avec une API largement
+inspiré de MongoDB.
+
+Pour ma part, je suis tombé amoureux de cette technologie et je l'utilise sur presque tout mes
+projets d'applications web mobile. 
+
+De plus, grâce à son système de réplication et d'API REST qui offre une intéropabilité maximum,
+la stack CouchDB/PouchDB offre une alternative sérieuse à MongoDB/Node.js
