@@ -101,7 +101,7 @@ puis insérez la ligne suivante dans votre `index.html` :
 <script src="node_modules/pouchdb/dist/pouchdb.min.js"></script>
 ```
 
-### Création d'une base de donnée locale
+### Création d'une base de données locale
 La première étape est la création d'une base de données locale :
 ```javascript
 var db = new PouchDB("smart-meter");
@@ -282,7 +282,7 @@ la réplication/synchronisation de base de données locale avec une base de donn
 Plusieurs patterns de réplication existent :
 
 - **One Database Per User** : Comme son nom l'indique, chaque utilisateur possède 
-sa propre base de donnée en local et sur le serveur CouchDB.
+sa propre base de données en local et sur le serveur CouchDB.
 - **Write-Only Replication** : Les données sont générées sur le device de chaque 
 utilisateur et se répliquent vers le serveur CouchDB.
 - **Read-Only Replication** : Les données sont générées sur le serveur CouchDB et se répliquent
@@ -295,14 +295,14 @@ Comme souvent dans les applications business on souhaite partager de l'informati
 utilisateurs, c'est ce dernier pattern et son utilisation que je vais vous présenter.
 
 #### Réplication bidirectionnelle
-Voici comment procéder pour initialiser la réplication entre la base de donnée locale et 
-la base de donnée distante :
+Voici comment procéder pour initialiser la réplication entre la base de données locale et 
+la base de données distante :
 
 ```javascript
-// Création de la base de donnée locale
+// Création de la base de données locale
 var db = new PouchDB("smart-meter");
 console.log("Local database created");
-// Création de l'object base de donnée distante
+// Création de l'object base de données distante
 var remoteDb = new PouchDB(
   "https://my-remote-couchdb-server.business.com/smart-meter"
 );
@@ -316,7 +316,7 @@ var sync = db.sync(remoteDb, {
 ```
 
 Voilà, avec ces quelques lignes nous avons paramétré une replication bidirectionnelle entre
-notre base de donnée locale et notre base de donnée distante.
+notre base de données locale et notre base de données distante.
 
 En activant `options.live`, PouchDB va suivre tous les changements et les répliquer 
 automatiquement.
@@ -325,7 +325,7 @@ En activant `options.retry`, PouchDB va tenter de relancer la réplication en ca
 (de perte de connexion notamment).
 
 Grâce à cette configuration chaque changement (création, modification et suppression de document)
-va être automatiquement répliquée entre la base de donnée locale et distante et inversement.
+va être automatiquement répliquée entre la base de données locale et distante et inversement.
 
 > Parfois, on souhaite contrôler à la demande la fonctionnalité de synchronisation
 de données, pour cela il suffit d'appeller la fonction `db.sync()` avec `options.live: false`
@@ -343,7 +343,7 @@ sync.on("change", function(info) {
     console.log("On complete");
     console.log(info);
   }).on("paused", function(error) {
-    // La réplication est en pause (la base de donnée est à jour ou l'utilisateur est offline)
+    // La réplication est en pause (la base de données est à jour ou l'utilisateur est offline)
     console.log("On paused");
     console.log(error);
   }).on("active", function() {
@@ -363,7 +363,7 @@ sync.on("change", function(info) {
 
 #### Réplication filtrée
 Jusqu'ici, le processus de réplication que nous avons créé répliquait et synchronisait la base
-de donnée complète. Ceci n'est pas très efficace, d'autant plus qu'un utilisateur 
+de données complète. Ceci n'est pas très efficace, d'autant plus qu'un utilisateur 
 n'a pas forcément besoin d'avoir accès à la totalité des données mais uniquement les données
 qui le concerne.
 
@@ -393,7 +393,7 @@ Cet extrait de code ne va répliquer et synchroniser que les documents ayant un 
 ou égal à la date du 13 novembre 2014.
 
 Vous pouvez aussi utiliser une fonction `filter` présente dans un design document de la base
-de donnée distante :
+de données distante :
 ```javascript
 // Initialisation de la réplication filtrée avec utilisation d'un filter coté CouchDB
 var sync = db.sync(remoteDb, {
