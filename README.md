@@ -25,7 +25,7 @@ considérablement la complexité.
 CouchDB
 -------
 [CouchDB](http://couchdb.apache.org/) est une base de données NoSQL orientée document et open source, elle est développée et maintenue par
-la fondation apache. Comme pour MongoDB, les documents sont stockés au format JSON, la similarité avec Mongo s'arrêtant là.
+la fondation Apache. Comme pour MongoDB, les documents sont stockés au format JSON, la similarité avec Mongo s'arrêtant là.
 En effet, à la différence des autres systèmes de base de données NoSQL, CouchDB se démarque sur 2 points essentiels (et non des
 moindres) :
 
@@ -203,7 +203,7 @@ db.put({
 ```
 
 ### Requêter la base de données avec `allDocs`
-Commençons par une requête simple en utilisant la fonction `db.allDocs()` qui permet récupérer
+Commençons par une requête simple en utilisant la fonction `db.allDocs()` qui permet de récupérer
 tous les documents de la base de données.
 
 ```javascript
